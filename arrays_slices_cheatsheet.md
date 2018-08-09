@@ -4,14 +4,34 @@ When learning Go, with [Finnian A.](https://github.com/developius), we found tha
 Until I become even slightly good at Go, this guide will be a personal reference.
 
 ## General array/slice concepts
-TODO:
-<!-- In most circumstances it's unnecessary to deal with arrays; slices are far easier.
-_Slices don't store any data._
-Explain capacity with ascii art -->
+* An array in Go is fixed length. Once initialised, you can't change the element type or number of elements.
+* A slice is an abstraction on top of an array. __Slices don't store any data__, they just refer to the underlying array.
+* In most circumstances it's unnecessary to deal with arrays; slices are far easier.
+* A slice can refer to any section of the underlying array, it doesn't have to refer to the whole thing
+
+A slice has a length and a capacity.
+* Length of the slice is, well, the legnth of the slice. _Not_ the length of the underlying array.
+* Capacity of the slice refers to how many elements of the underlying array can be used before running out of space.
+
+Here's an example, where our slice has a length of 2, but a capacity of 7
+```
+Slice:    | - | - |
+Array:    | 0 | 1 | 2 | 3 | 4 | 5 | 6 |
+Capacity: < ------------------------- >
+```
+The capacity of 7 signifies that there are seven spaces in the underlying array which can be used.
+
+Here's another example, where our slice starts at element 3:
+```
+Slice:             | - | - |
+Array: | 0 | 1 | 2 | 3 | 4 | 5 | 6 |
+Capacity:          < ------------- >
+```
+The slice now has a length of 2, and a _capacity of 4_.
 
 ## Array initialisation
-### Empty
-To declare an empty array, use the following syntax:
+### Using `var`
+To create an empty array, use the following syntax:
 ```go
 var arr [3]string
 ```
@@ -24,8 +44,12 @@ string -> ""
 boolean -> false
 everything else -> nil
 ```
-### With starting values
-To create an array containing starting values, use curly braces:
+### Using an assignment
+To create an empty array:
+```go
+arr := [3]string{}
+```
+To create an array containing starting values:
 ```go
 arr := [3]string{
   "foo",
@@ -39,6 +63,13 @@ Here's another example of an array literal:
 ```go
 [5]int{58, 89, 1, -56, 182}
 ```
+*Note*: Though the length of the array must be fixed, there's no reason why you should have to count it yourself!
+
+Use `...` to make the compiler count for you, like so:
+```go
+arr := [...]int{58, 89, 1, -56, 182}
+```
+
 ##Slice initialisation
 ### On top of an existing array
 In the situation that an array already exists, it's dead easy to add a slice on top of it.
@@ -60,37 +91,75 @@ Of course, you can't strictly initialise a slice by itself, because *slices don'
 
 However, it is possible to create a slice without creating an array first, because Go will automatically allocate a corresponding array in the background.
 
-There are two ways to do this:
-#### A slice literal assignment (with starting values)
-We talked about array literals earlier. Here's the corresponding slice literal.
-```go
-// Array literal
-[5]int{58, 89, 1, -56, 182}
-// Slice literal
-[]int{58, 89, 1, -56, 182}
-```
-Creating a slice literal automatically creates the underlying array.
+There are three ways to do this:
+1. Using `var`
 
-So to create a slice with starting values, simply assign a slice literal.
+  To create an empty slice, use the following syntax:
+  ```go
+  var arr []string
+  ```
+2. A slice literal assignment
+
+  We talked about array literals earlier. Here's the corresponding slice literal. The syntax is exactly the same as an array, just without specifying the length.
+  ```go
+  // Array literal
+  [5]int{58, 89, 1, -56, 182}
+  // Slice literal
+  []int{58, 89, 1, -56, 182}
+  ```
+  Creating a slice literal automatically creates the underlying array.
+
+  So to create a slice with starting values, simply assign a slice literal.
+  ```go
+  slice := []string{
+    "foo",
+    "bar",
+    "baz",
+  }
+  ```
+  You can also use this to create empty slices:
+  ```go
+  slice := []string{}
+  ```
+3. Using `make()`
+
+  `make()` allocates an array and returns a slice which refers to that array.
+
+  To make a slice of `int`s with a length of 10 (which refers to an array of length 10):
+  ```go
+  slice := make([]int, 10)
+  ```
+  An optional third parameter is the capacity of the slice.
+
+  So, you could create a slice of length 0, which refers to an array of length 10:
+  ```go
+  slice := make([]int, 0, 10)
+  ```
+  This can often be handy, as calling `append()` will add elements starting from index 0.
+## Arrays/slices in 2D and beyond
+### Slices in 2D
+#### Using `var`
 ```go
-slice := []string{
-  "foo",
-  "bar",
-  "baz",
+var slice [][]string
+```
+#### Using an assignment
+To assign an empty 2D slice:
+```go
+slice := [][]string{}
+```
+To assign a 2D slice with starting values:
+```go
+slice := [][]string{
+  []string{"r1c1", "r1c2", "r1c3"},
+  []string{"r2c1", "r2c2", "r2c3"},
 }
 ```
-#### Using `make()` (empty)
-`make()` allocates an array and returns a slice which refers to that array.
-
-To make a slice of ints with a length of 10 (which refers to an array of length 10):
+### Arrays in 2D
+Arrays in 2D are exactly the same as slices in 2D, just with the length specified.
+Eg:
 ```go
-slice := make([]int, 10)
+arr := [3][3]string{
+  [...]string{"r1c1", "r1c2", "r1c3"},
+  [...]string{"r2c1", "r2c2", "r2c3"},
+}
 ```
-An optional third parameter is the capacity of the slice.
-
-So, you could create a slice of length 0, which refers to an array of length 10:
-```go
-slice := make([]int, 0, 10)
-```
-This can often be handy, as calling `append()` will add elements starting from index 0.
-## 2D arrays/slices
