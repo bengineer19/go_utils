@@ -1,5 +1,5 @@
 # Cheatsheet for arrays and slices in Go
-When learning Go, with [Finnian A.](https://github.com/developius), we found that there were a lot of different ways to initialise arrays and slices.
+When I was learning Go, with [Finnian A.](https://github.com/developius), we found that there were a lot of different ways to initialise arrays and slices.
 
 Until I become even slightly good at Go, this guide will be a personal reference.
 
@@ -10,8 +10,9 @@ Until I become even slightly good at Go, this guide will be a personal reference
 * A slice can refer to any section of the underlying array, it doesn't have to refer to the whole thing
 
 A slice has a length and a capacity.
-* Length of the slice is, well, the legnth of the slice. _Not_ the length of the underlying array.
-* Capacity of the slice refers to how many elements of the underlying array can be used before running out of space.
+* Length of the slice is, well, the length of the slice. _Not_ the length of the underlying array.
+* Capacity of the slice refers to the **maximum size your slice can grow to before it won't fit** in the array it refers to.
+* If the slice does run out of space, a new array will automatically be allocated behind the scenes by `append()`.
 
 Here's an example, where our slice has a length of 2, but a capacity of 7
 ```
@@ -70,7 +71,7 @@ Use `...` to make the compiler count for you, like so:
 arr := [...]int{58, 89, 1, -56, 182}
 ```
 
-##Slice initialisation
+## Slice initialisation
 ### On top of an existing array
 In the situation that an array already exists, it's dead easy to add a slice on top of it.
 
@@ -125,7 +126,7 @@ There are three ways to do this:
 
   `make()` allocates an array and returns a slice which refers to that array.
 
-  To make a slice of `int`s with a length of 10 (which refers to an array of length 10):
+  To make a slice of ints with a length of 10 (which refers to an array of length 10):
   ```go
   slice := make([]int, 10)
   ```
